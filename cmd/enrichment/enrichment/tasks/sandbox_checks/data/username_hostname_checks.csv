@@ -1,0 +1,33 @@
+# Will trigger if both the username and netbois match (all checks will be case insensitive)
+# Format username regex,hostname regex
+(WILBER),[(SC)(sc)].+
+(WILBER),[(CW)(CW)].+
+(ADMIN),(KONE_X64-PC)
+(ADMIN),(SystemIT)
+(MALTEST),.+
+.+,(TEQUILABOOMBOOM)
+(SANDBOX),.+
+VIRUS,.+
+MALWARE,.+
+SAND\s?BOX,.+
+Test\sUser,.+
+(CurrentUser),.+
+(7SILVIA),.+
+(FORTINET),.+
+John\s?Doe,.+
+(Emily),.+
+.+,HANSPETER(-PC)?
+HAPUBWS,.+
+Hong\sLee,.+
+.+,(IT-ADMIN)
+(IT-ADMIN),.+
+([Jj]ohn)(-PC)?,(John-PC)
+.+,(MUELLER-PC)
+(PETER WILSON),.+
+.+,WIN7-TRAPS
+(SystemIT),.+
+.+,(SystemIT)
+(WDAGUtilityAccount),.+
+.+,(LISA-PC)
+.+,(Ralph)(s)?(-PC)
+.+,(JULIA-PC)
