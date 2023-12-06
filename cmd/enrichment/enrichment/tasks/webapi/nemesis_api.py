@@ -43,6 +43,7 @@ from starlette.background import BackgroundTask
 logger = structlog.get_logger(module=__name__)
 
 MAP = {
+    "agent_data": pb.AgentDataIngestionMessage,
     "authentication_data": pb.AuthenticationDataIngestionMessage,
     "file_data": pb.FileDataIngestionMessage,
     "file_information": pb.FileInformationIngestionMessage,

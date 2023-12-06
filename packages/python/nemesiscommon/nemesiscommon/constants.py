@@ -16,6 +16,7 @@ NemesisQueue = str
 
 #  Nemesis (Q)ueue Names (alphabetical order, no plurals)
 Q_ALERT: NemesisQueue = "alert"
+Q_AGENT_DATA: NemesisQueue = "agent_data"
 Q_AUTHENTICATION_DATA: NemesisQueue = "authentication_data"
 Q_CHROMIUM_COOKIE_PROCESSED: NemesisQueue = "chromium_cookie_processed"
 Q_CHROMIUM_COOKIE: NemesisQueue = "chromium_cookie"
@@ -49,6 +50,7 @@ Q_SERVICE: NemesisQueue = "service"
 
 ALL_QUEUES: List[NemesisQueue] = [
     Q_ALERT,
+    Q_AGENT_DATA,
     Q_AUTHENTICATION_DATA,
     Q_CHROMIUM_COOKIE_PROCESSED,
     Q_CHROMIUM_COOKIE,

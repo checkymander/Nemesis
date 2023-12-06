@@ -4,9 +4,9 @@
 
 1. Build out the fields for the new new datatype at `./docs/odr/references/\<DATA_TYPE\>.md`
 2. Create a sample structured json input in `./sample_files/structured/\<DATA_TYPE\>.json`
-    - In `./cmd/enrichment/enrichment/cli/submit_to_nemesis/submit_to_nemesis.py` add a handler at the top of the *process_file()* function.
+#    - In `./cmd/enrichment/enrichment/cli/submit_to_nemesis/submit_to_nemesis.py` add a handler at the top of the *process_file()* function.
 3. Build a new **\<DATA_TYPE\>Ingestion** and **\<DATA_TYPE\>IngestionMessage** protbuf definitions in nemesis.proto
-4. In `./cmd/enrichment/enrichment/services/web_api/service.py` add in the data type name to protobuf mapping in MAP at the top of the file.
+4. In `./cmd/enrichment/enrichment/tasks/webapi/nemesis_api.py` add in the data type name to protobuf mapping in MAP at the top of the file.
 5. In `./packages/python/nemesiscommon/nemesiscommon/constants.py` create a new **Q_\<DATA_TYPE\>** queue and add it to the ALL_QUEUES list.
     - If there will be intial and processed versions of the data type, also create a **Q_\<DATA_TYPE\>_PROCESSED** queue and add it to the ALL_QUEUES list.
 6. If the ODR should ingest into Elasticsearch:

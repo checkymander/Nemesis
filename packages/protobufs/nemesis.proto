@@ -76,6 +76,46 @@ message MetadataHeader {
 }
 
 
+message AgentDataIngestion{
+  // Agent ID as specified in the c2 server
+  string id = 1;
+
+  // Username the agent is running in the context of
+  string username = 2;
+
+  // Hostname of the computer the agent is running on
+  string hostname = 3;
+
+  // Domain of the computer the agent is running on
+  string domain = 4;
+
+  // Process ID of the executing agent
+  int process_id = 5;
+
+  // Process Name the agent is running in
+  string process_name = 6;
+
+  // Architecture of thte process the agent is running in
+  string arch = 7;
+
+  // The OS reported back by the agent
+  string os = 8;
+
+  // The integrity level the agent is running in
+  int integrity_level = 9;
+
+  // An array of IPs associated with the host the agent is running on
+  repeated string ips = 10;
+
+  // The time the agent first called back
+  google.protobuf.Timestamp callback_time = 11;
+
+}
+message AgentDataIngestionMessage {
+  Metadata metadata = 1;
+  repeated AgentDataIngestion data = 2;
+}
+
 // Data that may be used to authenticate to a resource. The resource does not
 // need to be accessible over a network and a local resource may be specified
 // using the file:// scheme in the URI parameter. The type data may be anything

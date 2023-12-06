@@ -365,6 +365,7 @@ async def process_file(config: dict[str, str], file_path: str) -> uuid.UUID | No
     Takes a configuration dictionary and file path, and uploads the file to Nemesis depending on what the filename is.
     """
     api_json_regexes = [
+        r".*agent_data.*\.json$",
         r".*authentication_data.*\.json$",
         r".*cookies.*\.json$",
         # r".*file_data.*\.json$",          # Removing for now since normal file uploads use this
