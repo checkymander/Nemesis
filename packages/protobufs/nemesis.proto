@@ -116,6 +116,22 @@ message AgentDataIngestionMessage {
   repeated AgentDataIngestion data = 2;
 }
 
+message AgentDataEnrichedMessage {
+  Metadata metadata = 1;
+  repated AgentDataEnriched data = 2;
+}
+
+message AgentDataEnriched {
+  // The contenxt of the original Agent Data Ingestion Message
+  AgentDataIngestionMessage origin = 1;
+
+  // Should this be a string message to support future usages of this odr type that's not just sandbox checking?
+  bool sandbox = 2;
+
+  repeated string enrichments_success = 3;
+
+}
+
 // Data that may be used to authenticate to a resource. The resource does not
 // need to be accessible over a network and a local resource may be specified
 // using the file:// scheme in the URI parameter. The type data may be anything

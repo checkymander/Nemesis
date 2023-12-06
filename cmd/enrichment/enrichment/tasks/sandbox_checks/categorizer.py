@@ -1,5 +1,6 @@
 # Standard Libraries
 import os
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
@@ -13,12 +14,12 @@ class SandboxRegex:
 
 class SandboxDetectorInterface(ABC):
     @abstractmethod
-    async def lookup(self, name: str) -> SandboxRegex:
+    async def check_sandbox(self, name: str) -> SandboxRegex:
         pass
 
 
 class CsvSandboxDetector(SandboxDetectorInterface):
-    processCategoryList: list[SandboxRegex]
+    sandboxRegexList: list[SandboxRegex]
     data_path: str
     _initialized: bool = False
     _category_files: Dict[str, str] = {
@@ -31,10 +32,8 @@ class CsvSandboxDetector(SandboxDetectorInterface):
         else:
             self.data_path = os.path.join(os.path.dirname(__file__), "data")
 
-    def __load_categories(self) -> None:
-        for category_name, filename in self._category_files.items():
-            filepath = os.path.join(self.data_path, filename)
-            self.__load_csv(category_name, filepath)
+        for check in self._category_files:
+            self.__load_csv(check, os.path.join(self.data_path, self._category_files[check]))
 
     def __load_csv(self, category_name: str, filepath: str) -> None:
         csv = open(filepath, "r", encoding="utf-8")
@@ -48,29 +47,15 @@ class CsvSandboxDetector(SandboxDetectorInterface):
 
             parts = line.split(",", 1)
 
-
             username_regex = parts[0]
             hostname_regex = parts[1]
 
             regex = SandboxRegex(hostname_regex, username_regex)
 
-            # if process_name in self.processCategoryMap:
-            #     raise Exception(f"Duplicate process category for the process {process_name}")
-            # else:
-            #     self.processCategoryMap[process_name] = category
             self.processCategoryList.append(regex)
 
     async def check_sandbox(self, username, hostname) -> bool:
-
+        for r in self.sandboxRegexList:
+            if re.match(r.username, username, re.IGNORECASE) and re.match(r.hostname, hostname, re.IGNORECASE):
+                return True
         return False
-
-    # async def lookup(self, name: str) -> SandboxRegex:
-    #     if not self._initialized:
-    #         self.__load_categories()
-    #         self._initialized = True
-
-    #     name = name.lower()
-    #     if name in self.processCategoryMap:
-    #         return self.processCategoryMap[name]
-    #     else:
-    #         return Sandbo("Unknown", "Unknown")
