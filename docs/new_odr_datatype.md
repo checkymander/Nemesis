@@ -14,7 +14,7 @@
     2. In `./cmd/enrichment/enrichment/tasks/elastic_connector.py`:
         - Add **\<DATA_TYPE\>_queue** to the init section
         - Create a **send_\<DATA_TYPE\>()** function and add the call to the **tasks** list in run().
-    43. In `./cmd/enrichment/enrichment/containers.py`:
+    3. In `./cmd/enrichment/enrichment/containers.py`:
         - In the *Container* class add a *inputq_\<DATA_TYPE\>_elasticconnector* similar to the surrounding examples.
         - In *task_elasticconnector()* add the new queue as an argument.
 7. If the ODR should ingest into Postgres:

@@ -29,6 +29,7 @@ class ElasticConnector(TaskInterface):
     web_api_url: str
 
     # Queues
+    agent_data_q: MessageQueueConsumerInterface
     auth_data_q: MessageQueueConsumerInterface
     extracted_hash_q: MessageQueueConsumerInterface
     file_info_q: MessageQueueConsumerInterface
@@ -48,6 +49,7 @@ class ElasticConnector(TaskInterface):
         es_client: AsyncElasticsearch,
         web_api_url: str,
         public_kibana_url: str,
+        agent_data_q: MessageQueueConsumerInterface,
         auth_data_q: MessageQueueConsumerInterface,
         extracted_hash_q: MessageQueueConsumerInterface,
         file_data_enriched_q: MessageQueueConsumerInterface,
@@ -65,6 +67,7 @@ class ElasticConnector(TaskInterface):
         self.web_api_url = web_api_url
         self.public_kibana_url = public_kibana_url
 
+        self.agent_data_q = agent_data_q
         self.auth_data_q = auth_data_q
         self.extracted_hash_q = extracted_hash_q
         self.file_data_enriched_q = file_data_enriched_q
@@ -86,6 +89,7 @@ class ElasticConnector(TaskInterface):
         await logger.ainfo("Starting the ElasticConnector")
 
         tasks = [
+            self.agent_data_q.Read(self.send_agent_data),  # type: ignore
             self.auth_data_q.Read(self.send_authentication_data),  # type: ignore
             self.extracted_hash_q.Read(self.send_extracted_hash),  # type: ignore
             self.file_info_q.Read(self.send_file_info),  # type: ignore
@@ -104,6 +108,9 @@ class ElasticConnector(TaskInterface):
             await self.create_task(task)
 
         await asyncio.Future()
+
+    async def send_agent_data(self, q_msg: pb.AgentDataIngestionMessage) -> None:
+        await self.send_without_processing(q_msg, constants.ES_INDEX_AGENT_DATA)
 
     async def send_authentication_data(self, q_msg: pb.AuthenticationDataIngestionMessage) -> None:
         await self.send_without_processing(q_msg, constants.ES_INDEX_AUTHENTICATION_DATA)

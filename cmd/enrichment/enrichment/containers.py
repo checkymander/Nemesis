@@ -19,15 +19,17 @@ from enrichment.tasks.dpapi.dpapi import Dpapi
 from enrichment.tasks.elastic_connector import ElasticConnector
 from enrichment.tasks.file_processor import FileProcessor
 from enrichment.tasks.postgres_connector.postgres_connector import (
-    PostgresConnector,
-    RegistryWatcher,
-)
-from enrichment.tasks.process_categorizer.categorizer import CsvProcessCategorizer
-from enrichment.tasks.process_categorizer.process_categorizer import ProcessCategorizer
+    PostgresConnector, RegistryWatcher)
+from enrichment.tasks.process_categorizer.categorizer import \
+    CsvProcessCategorizer
+from enrichment.tasks.process_categorizer.process_categorizer import \
+    ProcessCategorizer
 from enrichment.tasks.raw_data_tag.raw_data_tag import RawDataTag
 from enrichment.tasks.registry_hive import RegistryHive
-from enrichment.tasks.service_categorizer.categorizer import TsvServiceCategorizer
-from enrichment.tasks.service_categorizer.service_categorizer import ServiceCategorizer
+from enrichment.tasks.service_categorizer.categorizer import \
+    TsvServiceCategorizer
+from enrichment.tasks.service_categorizer.service_categorizer import \
+    ServiceCategorizer
 from enrichment.tasks.slack_webhook_alerter import SlackWebHookAlerter
 from enrichment.tasks.webapi.crack_list.cracklist_api import CrackListApi
 from enrichment.tasks.webapi.landingpage import LandingPageApi
@@ -35,10 +37,8 @@ from enrichment.tasks.webapi.ml_models_api import MlModelsApi
 from enrichment.tasks.webapi.nemesis_api import NemesisApi
 from enrichment.tasks.webapi.yara_api import YaraApi
 from nemesiscommon.constants import NemesisQueue
-from nemesiscommon.messaging_rabbitmq import (
-    NemesisRabbitMQConsumer,
-    NemesisRabbitMQProducer,
-)
+from nemesiscommon.messaging_rabbitmq import (NemesisRabbitMQConsumer,
+                                              NemesisRabbitMQProducer)
 from nemesiscommon.services.alerter import NemesisAlerter
 from nemesiscommon.storage_minio import StorageMinio
 from nemesiscommon.storage_s3 import StorageS3
@@ -114,6 +114,15 @@ class Container(containers.DeclarativeContainer):
     inputq_filedataenriched_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA_ENRICHED, pb.FileDataEnrichedMessage, "fileprocessor")
     inputq_process_processcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_PROCESS, pb.ProcessIngestionMessage, "processcategorizer")
     inputq_service_servicecategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_SERVICE, pb.ServiceIngestionMessage, "servicecategorizer")
+
+    inputq_agentdata_elasticconnector = providers.Resource(
+        create_consumer,
+        config.rabbitmq_connection_uri,
+        constants.Q_AGENT_DATA,
+        pb.AgentDataIngestionMessage,
+        "elasticconnector",
+        num_events=500,
+    )
 
     inputq_authdata_elasticconnector = providers.Resource(
         create_consumer,
@@ -483,6 +492,7 @@ class Container(containers.DeclarativeContainer):
         elasticsearch_client,
         config.web_api_url,
         config.public_kibana_url,
+        inputq_agentdata_elasticconnector,
         inputq_authdata_elasticconnector,
         inputq_extractedhash_elasticconnector,
         inputq_filedataenriched_elasticconnector,

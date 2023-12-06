@@ -95,7 +95,7 @@ RABBITMQ_QUEUE_BINDINGS: dict[NemesisQueue, QueueBinding] = {}
 for q in ALL_QUEUES:
     RABBITMQ_QUEUE_BINDINGS[q] = QueueBinding(NEMESIS_EXCHANGE, q, q)
 
-
+ES_INDEX_AGENT_DATA: ElasticIndex = "agent_data"
 ES_INDEX_AUTHENTICATION_DATA: ElasticIndex = "authentication_data"
 ES_INDEX_EXTRACTED_HASH: ElasticIndex = "extracted_hash"
 ES_INDEX_FILE_DATA_ENRICHED: ElasticIndex = "file_data_enriched"
@@ -109,6 +109,7 @@ ES_INDEX_NAMED_PIPE: ElasticIndex = "named_pipe"
 ES_INDEX_NETWORK_CONNECTION: ElasticIndex = "network_connection"
 
 ALL_ES_INDICIES: List[ElasticIndex] = [
+    ES_INDEX_AGENT_DATA,
     ES_INDEX_AUTHENTICATION_DATA,
     ES_INDEX_EXTRACTED_HASH,
     ES_INDEX_FILE_DATA_ENRICHED,
