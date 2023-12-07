@@ -190,6 +190,133 @@ class MetadataHeader(google.protobuf.message.Message):
 global___MetadataHeader = MetadataHeader
 
 @typing_extensions.final
+class AgentDataIngestion(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ID_FIELD_NUMBER: builtins.int
+    USERNAME_FIELD_NUMBER: builtins.int
+    HOSTNAME_FIELD_NUMBER: builtins.int
+    DOMAIN_FIELD_NUMBER: builtins.int
+    PROCESS_ID_FIELD_NUMBER: builtins.int
+    PROCESS_NAME_FIELD_NUMBER: builtins.int
+    ARCH_FIELD_NUMBER: builtins.int
+    OS_FIELD_NUMBER: builtins.int
+    INTEGRITY_LEVEL_FIELD_NUMBER: builtins.int
+    IPS_FIELD_NUMBER: builtins.int
+    CALLBACK_TIME_FIELD_NUMBER: builtins.int
+    id: builtins.str
+    """Agent ID as specified in the c2 server"""
+    username: builtins.str
+    """Username the agent is running in the context of"""
+    hostname: builtins.str
+    """Hostname of the computer the agent is running on"""
+    domain: builtins.str
+    """Domain of the computer the agent is running on"""
+    process_id: builtins.int
+    """Process ID of the executing agent"""
+    process_name: builtins.str
+    """Process Name the agent is running in"""
+    arch: builtins.str
+    """Architecture of thte process the agent is running in"""
+    os: builtins.str
+    """The OS reported back by the agent"""
+    integrity_level: builtins.int
+    """The integrity level the agent is running in"""
+    @property
+    def ips(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]:
+        """An array of IPs associated with the host the agent is running on"""
+    @property
+    def callback_time(self) -> google.protobuf.timestamp_pb2.Timestamp:
+        """The time the agent first called back"""
+    def __init__(
+        self,
+        *,
+        id: builtins.str = ...,
+        username: builtins.str = ...,
+        hostname: builtins.str = ...,
+        domain: builtins.str = ...,
+        process_id: builtins.int = ...,
+        process_name: builtins.str = ...,
+        arch: builtins.str = ...,
+        os: builtins.str = ...,
+        integrity_level: builtins.int = ...,
+        ips: collections.abc.Iterable[builtins.str] | None = ...,
+        callback_time: google.protobuf.timestamp_pb2.Timestamp | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["callback_time", b"callback_time"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["arch", b"arch", "callback_time", b"callback_time", "domain", b"domain", "hostname", b"hostname", "id", b"id", "integrity_level", b"integrity_level", "ips", b"ips", "os", b"os", "process_id", b"process_id", "process_name", b"process_name", "username", b"username"]) -> None: ...
+
+global___AgentDataIngestion = AgentDataIngestion
+
+@typing_extensions.final
+class AgentDataIngestionMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    METADATA_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    @property
+    def metadata(self) -> global___Metadata: ...
+    @property
+    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AgentDataIngestion]: ...
+    def __init__(
+        self,
+        *,
+        metadata: global___Metadata | None = ...,
+        data: collections.abc.Iterable[global___AgentDataIngestion] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["metadata", b"metadata"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "metadata", b"metadata"]) -> None: ...
+
+global___AgentDataIngestionMessage = AgentDataIngestionMessage
+
+@typing_extensions.final
+class AgentDataEnrichedMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    METADATA_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    @property
+    def metadata(self) -> global___Metadata: ...
+    @property
+    def data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AgentDataEnriched]: ...
+    def __init__(
+        self,
+        *,
+        metadata: global___Metadata | None = ...,
+        data: collections.abc.Iterable[global___AgentDataEnriched] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["metadata", b"metadata"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "metadata", b"metadata"]) -> None: ...
+
+global___AgentDataEnrichedMessage = AgentDataEnrichedMessage
+
+@typing_extensions.final
+class AgentDataEnriched(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ORIGIN_FIELD_NUMBER: builtins.int
+    SANDBOX_FIELD_NUMBER: builtins.int
+    ENRICHMENTS_SUCCESS_FIELD_NUMBER: builtins.int
+    @property
+    def origin(self) -> global___AgentDataIngestionMessage:
+        """The contenxt of the original Agent Data Ingestion Message"""
+    sandbox: builtins.bool
+    """Should this be a string message to support future usages of this odr type that's not just sandbox checking?"""
+    @property
+    def enrichments_success(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        origin: global___AgentDataIngestionMessage | None = ...,
+        sandbox: builtins.bool = ...,
+        enrichments_success: collections.abc.Iterable[builtins.str] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["origin", b"origin"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["enrichments_success", b"enrichments_success", "origin", b"origin", "sandbox", b"sandbox"]) -> None: ...
+
+global___AgentDataEnriched = AgentDataEnriched
+
+@typing_extensions.final
 class AuthenticationDataIngestion(google.protobuf.message.Message):
     """Data that may be used to authenticate to a resource. The resource does not
     need to be accessible over a network and a local resource may be specified

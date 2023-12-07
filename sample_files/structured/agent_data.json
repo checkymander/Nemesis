@@ -1,5 +1,5 @@
-{"data":
-    [
+{
+    "data": [
         {
             "id": "775643a6-9e40-4ffe-bb88-0420c8752f91",
             "username": "john",
@@ -20,12 +20,12 @@
     ],
     "metadata": {
         "agent_id": "339429212",
-        "agent_type": "beacon",
-        "automated": 1,
+        "agent_type": "mythic",
+        "automated": false,
         "data_type": "agent_data",
-        "expiration": "2023-08-01T22:51:35",
+        "expiration": "2024-04-03T10:08:40.000Z",
         "source": "DC",
         "project": "ASSESS-X",
-        "timestamp": "2022-08-01T22:51:35"
+        "timestamp": "2023-04-03T10:08:40.000Z"
     }
 }

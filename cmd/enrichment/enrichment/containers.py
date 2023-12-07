@@ -22,6 +22,10 @@ from enrichment.tasks.postgres_connector.postgres_connector import (
     PostgresConnector, RegistryWatcher)
 from enrichment.tasks.process_categorizer.categorizer import \
     CsvProcessCategorizer
+from enrichment.tasks.sandbox_checks.categorizer import \
+    CsvSandboxDetector
+from enrichment.tasks.sandbox_checks.sandbox_detector import \
+    SandboxDetector
 from enrichment.tasks.process_categorizer.process_categorizer import \
     ProcessCategorizer
 from enrichment.tasks.raw_data_tag.raw_data_tag import RawDataTag
@@ -112,6 +116,7 @@ class Container(containers.DeclarativeContainer):
     inputq_alert_slackwebhookalert = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_ALERT, pb.Alert, "slackwebhookalert")
     inputq_filedata_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA, pb.FileDataIngestionMessage, "fileprocessor")
     inputq_filedataenriched_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA_ENRICHED, pb.FileDataEnrichedMessage, "fileprocessor")
+    inputq_agentdata_servicedetector = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.AgentDataIngestionMessage, "sandboxdetector")
     inputq_process_processcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_PROCESS, pb.ProcessIngestionMessage, "processcategorizer")
     inputq_service_servicecategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_SERVICE, pb.ServiceIngestionMessage, "servicecategorizer")
 
@@ -363,7 +368,8 @@ class Container(containers.DeclarativeContainer):
     #
     # Output Queues (alphabetical order)
     #
-
+    # outputq_agentdata = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA)
+    outputq_agentdataProcessed = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA_PROCESSED)
     outputq_alert = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_ALERT)
     outputq_authdata = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AUTHENTICATION_DATA)
     outputq_chromiumcookies = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_CHROMIUM_COOKIE)
@@ -440,7 +446,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     database = providers.Resource(create_nemesis_db, config.postgres_connection_uri)
-
+    sandbox_detector = providers.Factory(CsvSandboxDetector)
     process_categorizer = providers.Factory(CsvProcessCategorizer)
     service_categorizer = providers.Factory(TsvServiceCategorizer)
     registry_watcher = providers.Factory(RegistryWatcher, database, outputq_dpapiblob)
@@ -564,7 +570,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     task_processcategorizer = providers.Factory(ProcessCategorizer, inputq_process_processcategorizer, outputq_processenriched, process_categorizer)
-
+    task_sandboxdetector = providers.Factory()
     task_rawdatatag = providers.Factory(
         RawDataTag,
         storage_service,
@@ -587,7 +593,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     task_servicecategorizer = providers.Factory(ServiceCategorizer, inputq_service_servicecategorizer, outputq_serviceenriched, service_categorizer)
-
+    task_sandboxdetector = providers.Factory(SandboxDetector, inputq_agentdata_servicedetector, outputq_agentdataProcessed, sandbox_detector)
     task_dataexpunge = providers.Factory(DataExpunge, elasticsearch_client, database)
 
     #
@@ -625,6 +631,7 @@ class Container(containers.DeclarativeContainer):
         rawdata=task_rawdatatag,  # type: ignore
         registryhive=task_registryhive,  # type: ignore
         servicecategorizer=task_servicecategorizer,  # type: ignore
+        sandboxdetector=task_sandboxdetector, # type: ignore
         yara_api=task_yara_api,  # type: ignore
         dataexpunge=task_dataexpunge,  # type: ignore
     )

@@ -344,7 +344,7 @@ class NemesisApiRoutes(Routable):
 
         data_type = json_data["metadata"]["data_type"]
         if data_type not in MAP:
-            return Response(status_code=400, content="Invalid metadata data_type")
+            return Response(status_code=400, content="Invalid metadata data_type: " + data_type)
 
         try:
             obj = Parse(body_bytes, MAP[data_type]())

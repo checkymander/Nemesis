@@ -19,7 +19,7 @@ class SandboxDetectorInterface(ABC):
 
 
 class CsvSandboxDetector(SandboxDetectorInterface):
-    sandboxRegexList: list[SandboxRegex]
+    sandboxRegexList: list[SandboxRegex] = []
     data_path: str
     _initialized: bool = False
     _category_files: Dict[str, str] = {
@@ -52,7 +52,7 @@ class CsvSandboxDetector(SandboxDetectorInterface):
 
             regex = SandboxRegex(hostname_regex, username_regex)
 
-            self.processCategoryList.append(regex)
+            self.sandboxRegexList.append(regex)
 
     async def check_sandbox(self, username, hostname) -> bool:
         for r in self.sandboxRegexList:

@@ -251,7 +251,7 @@ class ElasticConnector(TaskInterface):
     @aio.time(Summary("elastic_send_without_processing", "Time spent submitting process_enriched messages to Elastic/Postgres"))  # type: ignore
     async def send_without_processing(
         self,
-        q_msg: pb.AuthenticationDataIngestionMessage | pb.FileInformationIngestionMessage | pb.ProcessEnrichedMessage | pb.RegistryValueIngestionMessage | pb.ServiceEnrichedMessage | pb.ExtractedHashMessage,
+        q_msg: pb.AgentDataIngestionMessage | pb.AuthenticationDataIngestionMessage | pb.FileInformationIngestionMessage | pb.ProcessEnrichedMessage | pb.RegistryValueIngestionMessage | pb.ServiceEnrichedMessage | pb.ExtractedHashMessage,
         index: ElasticIndex,
     ):
         metadata = MessageToDict(q_msg.metadata)
