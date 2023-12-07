@@ -244,7 +244,6 @@ async def nemesis_post_data(config: dict[str, str], data):
     client = await get_nemesis_api_client(config)
 
     resp = await client.post(NemesisApiClient.DATA_ENDPOINT, json=data)
-    print(resp.content)
     resp.raise_for_status()
 
     obj = resp.json()
