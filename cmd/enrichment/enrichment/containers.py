@@ -22,10 +22,14 @@ from enrichment.tasks.postgres_connector.postgres_connector import (
     PostgresConnector, RegistryWatcher)
 from enrichment.tasks.process_categorizer.categorizer import \
     CsvProcessCategorizer
-from enrichment.tasks.sandbox_checks.categorizer import \
+### Checkymander Added
+from enrichment.tasks.agent_categorizer.sandbox_detector.categorizer import \
     CsvSandboxDetector
-from enrichment.tasks.sandbox_checks.sandbox_detector import \
+from enrichment.tasks.agent_categorizer.sandbox_detector.sandbox_host_check import \
     SandboxDetector
+from enrichment.tasks.agent_categorizer.agent_categorizer import \
+    AgentCategorizer
+### Checkymander Added End
 from enrichment.tasks.process_categorizer.process_categorizer import \
     ProcessCategorizer
 from enrichment.tasks.raw_data_tag.raw_data_tag import RawDataTag
@@ -116,10 +120,14 @@ class Container(containers.DeclarativeContainer):
     inputq_alert_slackwebhookalert = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_ALERT, pb.Alert, "slackwebhookalert")
     inputq_filedata_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA, pb.FileDataIngestionMessage, "fileprocessor")
     inputq_filedataenriched_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA_ENRICHED, pb.FileDataEnrichedMessage, "fileprocessor")
-    inputq_agentdata_servicedetector = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.AgentDataIngestionMessage, "sandboxdetector")
+    # Checkymander Added
+    inputq_sandboxchecker_sandboxhostchecker = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.SandboxHostCheckIngestionMessage, "sandboxhostchecker")
+    inputq_agentdata_agentcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.AgentDataIngestionMessage, "agentcategorizer")
+    # Checkymander Added
     inputq_process_processcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_PROCESS, pb.ProcessIngestionMessage, "processcategorizer")
     inputq_service_servicecategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_SERVICE, pb.ServiceIngestionMessage, "servicecategorizer")
 
+    # Checkymander Added
     inputq_agentdata_elasticconnector = providers.Resource(
         create_consumer,
         config.rabbitmq_connection_uri,
@@ -128,6 +136,16 @@ class Container(containers.DeclarativeContainer):
         "elasticconnector",
         num_events=500,
     )
+
+    inputq_sandboxchecker_sandboxhostchecker = providers.Resource(
+        create_consumer,
+        config.rabbitmq_connection_uri,
+        constants.Q_SANDBOX_HOST_CHECK,
+        pb.SandboxHostCheckIngestionMessage,
+        "elasticconector",
+        num_events=500
+    )
+    # Checkymander Added
 
     inputq_authdata_elasticconnector = providers.Resource(
         create_consumer,
@@ -368,8 +386,12 @@ class Container(containers.DeclarativeContainer):
     #
     # Output Queues (alphabetical order)
     #
-    # outputq_agentdata = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA)
-    outputq_agentdataProcessed = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA_PROCESSED)
+
+    # Checkymander Created
+    outputq_sandboxcheck = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_SANDBOX_HOST_CHECK)
+    outputq_sandboxcheck_processed = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_SANDBOX_HOST_CHECK_ENRICHED)
+    # Checkymander Created
+
     outputq_alert = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_ALERT)
     outputq_authdata = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_AUTHENTICATION_DATA)
     outputq_chromiumcookies = providers.Resource(create_producer, config.rabbitmq_connection_uri, constants.Q_CHROMIUM_COOKIE)
@@ -446,7 +468,11 @@ class Container(containers.DeclarativeContainer):
     )
 
     database = providers.Resource(create_nemesis_db, config.postgres_connection_uri)
+    # Checkymander Added
     sandbox_detector = providers.Factory(CsvSandboxDetector)
+    agent_categorizer = providers.Factory(AgentCategorizer)
+    # Checkymander Added
+
     process_categorizer = providers.Factory(CsvProcessCategorizer)
     service_categorizer = providers.Factory(TsvServiceCategorizer)
     registry_watcher = providers.Factory(RegistryWatcher, database, outputq_dpapiblob)
@@ -499,6 +525,7 @@ class Container(containers.DeclarativeContainer):
         config.web_api_url,
         config.public_kibana_url,
         inputq_agentdata_elasticconnector,
+        inputq_sandboxchecker_sandboxhostchecker,
         inputq_authdata_elasticconnector,
         inputq_extractedhash_elasticconnector,
         inputq_filedataenriched_elasticconnector,
@@ -570,7 +597,6 @@ class Container(containers.DeclarativeContainer):
     )
 
     task_processcategorizer = providers.Factory(ProcessCategorizer, inputq_process_processcategorizer, outputq_processenriched, process_categorizer)
-    task_sandboxdetector = providers.Factory()
     task_rawdatatag = providers.Factory(
         RawDataTag,
         storage_service,
@@ -593,7 +619,10 @@ class Container(containers.DeclarativeContainer):
     )
 
     task_servicecategorizer = providers.Factory(ServiceCategorizer, inputq_service_servicecategorizer, outputq_serviceenriched, service_categorizer)
-    task_sandboxdetector = providers.Factory(SandboxDetector, inputq_agentdata_servicedetector, outputq_agentdataProcessed, sandbox_detector)
+    # Checkymander Added
+    task_agentcategorizer = providers.Factory(AgentCategorizer, inputq_agentdata_agentcategorizer, agent_categorizer)
+    task_sandboxdetector = providers.Factory(SandboxDetector, inputq_sandboxchecker_sandboxhostchecker, outputq_sandboxcheck_processed, sandbox_detector)
+    # Checkymander Added
     task_dataexpunge = providers.Factory(DataExpunge, elasticsearch_client, database)
 
     #
@@ -631,6 +660,7 @@ class Container(containers.DeclarativeContainer):
         rawdata=task_rawdatatag,  # type: ignore
         registryhive=task_registryhive,  # type: ignore
         servicecategorizer=task_servicecategorizer,  # type: ignore
+        agentcategorizer=task_agentcategorizer,
         sandboxdetector=task_sandboxdetector, # type: ignore
         yara_api=task_yara_api,  # type: ignore
         dataexpunge=task_dataexpunge,  # type: ignore

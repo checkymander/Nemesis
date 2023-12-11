@@ -44,6 +44,7 @@ logger = structlog.get_logger(module=__name__)
 
 MAP = {
     "agent_data": pb.AgentDataIngestionMessage,
+    "sandbox_host_check": pb.SandboxHostCheckIngestionMessage,
     "authentication_data": pb.AuthenticationDataIngestionMessage,
     "file_data": pb.FileDataIngestionMessage,
     "file_information": pb.FileInformationIngestionMessage,

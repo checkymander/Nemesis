@@ -1,0 +1,7 @@
+nemesis_url: http://10.30.25.25:8080/api/
+nemesis_creds: nemesis:mbme8DjXAgBQCWxMJEtGLCls
+expiration_days: 100
+network_name: 'ACMECORP'
+operator_name: operator_bob
+project_name: ASSESS-TEST
+log_level: DEBUG

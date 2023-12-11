@@ -6,7 +6,7 @@ from typing import List
 import nemesiscommon.constants as constants
 import nemesispb.nemesis_pb2 as pb
 import structlog
-from enrichment.tasks.sandbox_checks.categorizer import \
+from enrichment.tasks.agent_categorizer.sandbox_detector.categorizer import \
     SandboxDetectorInterface
 from nemesiscommon.messaging import (MessageQueueConsumerInterface, MessageQueueProducerInterface)
 from nemesiscommon.tasking import TaskInterface
@@ -37,17 +37,18 @@ class SandboxDetector(TaskInterface):
         await asyncio.Future()
 
     @aio.time(Summary("sandbox_process_data_enriched", "Time spent checking sandbox"))  # type: ignore
-    async def process_message(self, ingestedAgentDataMsg: pb.AgentDataIngestionMessage) -> None:
-        total_hosts = len(ingestedAgentDataMsg.data)
+    async def process_message(self, ingestedHostDataMsg: pb.SandboxHostCheckIngestionMessage) -> None:
+        total_hosts = len(ingestedHostDataMsg.data)
 
         await logger.adebug("Received AgentDataIngestionMessage, checking sandbox", total_procs=total_hosts)
-        enrichedDataIngestionMessage = pb.AgentDataEnrichedMessage()
-        enrichedDataIngestionMessage.metadata.CopyFrom(ingestedAgentDataMsg.metadata)
+        # No enriched Queue yet, let's just get functionality down.
+        # enrichedDataIngestionMessage = pb.SandboxHostCheckIngestionMessage()
+        # enrichedDataIngestionMessage.metadata.CopyFrom(ingestedAgentDataMsg.metadata)
 
-        for ingestedAgent in ingestedAgentDataMsg.data:
-            enrichedAgent = pb.AgentDataEnriched()
-            #enrichedAgent.origin.CopyFrom(ingestedAgent)
-            enrichedAgent.origin.CopyFrom(ingestedAgentDataMsg)
+        for ingestedAgent in ingestedHostDataMsg.data:
+            enrichedAgent = pb.SandboxHostCheckIngestion()
+            enrichedAgent.origin.CopyFrom(ingestedAgent)
+            #enrichedAgent.origin.CopyFrom(ingestedAgentDataMsg)
 
             enrichments_success: List[str] = []
             # enrichments_failure = []
@@ -63,6 +64,6 @@ class SandboxDetector(TaskInterface):
 
             enrichedAgent.enrichments_success.extend(enrichments_success)
 
-            enrichedDataIngestionMessage.data.append(enrichedAgent)
+            #enrichedDataIngestionMessage.data.append(enrichedAgent)
 
-        await self.out_q_agent_data.Send(enrichedDataIngestionMessage.SerializeToString())
+        #await self.out_q_agent_data.Send(enrichedDataIngestionMessage.SerializeToString())

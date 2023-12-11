@@ -111,26 +111,56 @@ message AgentDataIngestion{
   google.protobuf.Timestamp callback_time = 11;
 
 }
+
 message AgentDataIngestionMessage {
+
   Metadata metadata = 1;
+
   repeated AgentDataIngestion data = 2;
 }
 
 message AgentDataEnrichedMessage {
+
   Metadata metadata = 1;
+
   repeated AgentDataEnriched data = 2;
 }
 
 message AgentDataEnriched {
   // The Context of the original Agent Data Ingestion
-  AgentDataIngestionMessage origin = 1;
+  AgentDataIngestion origin = 1;
+
+  repeated string enrichments_success = 3;
+
+}
+
+message SandboxHostCheckIngestion {
+  string id = 1;
+  string username = 2;
+  string hostname = 3;
+
+}
+
+message SandboxHostCheckIngestionMessage{
+  Metadata metadata = 1;
+
+  repeated SandboxHostCheckIngestion data = 2;
+}
+message SandboxHostCheckIngestionMessage {
+
+  Metadata metadata = 1;
+
+  repeated SandboxHostCheckIngestionMessageEnriched data = 2;
+}
+message SandboxHostCheckIngestionMessageEnriched{
+  SandboxHostCheckIngestion origin = 1;
 
   // Should this be a string message to support future usages of this odr type that's not just sandbox checking?
   bool sandbox = 2;
 
   repeated string enrichments_success = 3;
-
 }
+
 
 // Data that may be used to authenticate to a resource. The resource does not
 // need to be accessible over a network and a local resource may be specified

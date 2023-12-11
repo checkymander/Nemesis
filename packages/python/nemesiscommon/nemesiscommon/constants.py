@@ -16,8 +16,9 @@ NemesisQueue = str
 
 #  Nemesis (Q)ueue Names (alphabetical order, no plurals)
 Q_ALERT: NemesisQueue = "alert"
-Q_AGENT_DATA: NemesisQueue = "agent_data"
-Q_AGENT_DATA_PROCESSED: NemesisQueue = "agent_data_processed"
+Q_AGENT_DATA: NemesisQueue = "agent_data" # This creates the queue for the agent_data input that will be passed onto other pipelines so we don't need an output for it
+Q_SANDBOX_HOST_CHECK: NemesisQueue = "sandbox_host_check" # This creates the queue for the sandbox check
+Q_SANDBOX_HOST_CHECK_ENRICHED: NemesisQueue = "sandbox_host_check_enriched" # This creates the queue for the sandbox check enriched output
 Q_AUTHENTICATION_DATA: NemesisQueue = "authentication_data"
 Q_CHROMIUM_COOKIE_PROCESSED: NemesisQueue = "chromium_cookie_processed"
 Q_CHROMIUM_COOKIE: NemesisQueue = "chromium_cookie"
@@ -52,7 +53,8 @@ Q_SERVICE: NemesisQueue = "service"
 ALL_QUEUES: List[NemesisQueue] = [
     Q_ALERT,
     Q_AGENT_DATA,
-    Q_AGENT_DATA_PROCESSED,
+    Q_SANDBOX_HOST_CHECK,
+    Q_SANDBOX_HOST_CHECK_ENRICHED,
     Q_AUTHENTICATION_DATA,
     Q_CHROMIUM_COOKIE_PROCESSED,
     Q_CHROMIUM_COOKIE,
@@ -98,6 +100,8 @@ for q in ALL_QUEUES:
     RABBITMQ_QUEUE_BINDINGS[q] = QueueBinding(NEMESIS_EXCHANGE, q, q)
 
 ES_INDEX_AGENT_DATA: ElasticIndex = "agent_data"
+ES_INDEX_SANDBOX_HOST_CHECK: ElasticIndex = "sandbox_host_check"
+ES_INDEX_SANDBOX_HOST_CHECK_ENRICHED: ElasticIndex = "sandbox_host_check_enriched"
 ES_INDEX_AUTHENTICATION_DATA: ElasticIndex = "authentication_data"
 ES_INDEX_EXTRACTED_HASH: ElasticIndex = "extracted_hash"
 ES_INDEX_FILE_DATA_ENRICHED: ElasticIndex = "file_data_enriched"
@@ -112,6 +116,8 @@ ES_INDEX_NETWORK_CONNECTION: ElasticIndex = "network_connection"
 
 ALL_ES_INDICIES: List[ElasticIndex] = [
     ES_INDEX_AGENT_DATA,
+    ES_INDEX_HOST_CHECK_DATA,
+    ES_INDEX_SANDBOX_HOST_CHECk_ENRICHED,
     ES_INDEX_AUTHENTICATION_DATA,
     ES_INDEX_EXTRACTED_HASH,
     ES_INDEX_FILE_DATA_ENRICHED,
@@ -128,7 +134,8 @@ ALL_ES_INDICIES: List[ElasticIndex] = [
 NemesisEnrichment = str
 
 #  Nemesis Enrichment Names
-E_AGENT_DATA: NemesisEnrichment = "agent_data"
+E_AGENT_DATA: NemesisEnrichment = "agent_data" # TODO: Figure out what exactly this does lol
+E_SANDBOX_HOST_CHECK: NemesisEnrichment = "sandbox_host_check" # TODO: Figure out what exactly this does lol
 E_FILE_HASHES: NemesisEnrichment = "file_hashes"
 E_KNOWN_FILE_PARSED: NemesisEnrichment = "known_file_parsed"
 E_DPAPI_BLOB_SCAN: NemesisEnrichment = "dpapi_blob_scan"

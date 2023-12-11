@@ -30,6 +30,8 @@ class ElasticConnector(TaskInterface):
 
     # Queues
     agent_data_q: MessageQueueConsumerInterface
+    sandbox_host_check_q : MessageQueueConsumerInterface
+    sandbox_host_check_enriched_q : MessageQueueConsumerInterface
     auth_data_q: MessageQueueConsumerInterface
     extracted_hash_q: MessageQueueConsumerInterface
     file_info_q: MessageQueueConsumerInterface
@@ -49,6 +51,8 @@ class ElasticConnector(TaskInterface):
         es_client: AsyncElasticsearch,
         web_api_url: str,
         public_kibana_url: str,
+        sandbox_host_check_q: MessageQueueConsumerInterface,
+        sandbox_host_check_enriched_q: MessageQueueConsumerInterface,
         agent_data_q: MessageQueueConsumerInterface,
         auth_data_q: MessageQueueConsumerInterface,
         extracted_hash_q: MessageQueueConsumerInterface,
@@ -67,6 +71,8 @@ class ElasticConnector(TaskInterface):
         self.web_api_url = web_api_url
         self.public_kibana_url = public_kibana_url
 
+        self.sandbox_host_check_q = sandbox_host_check_q
+        self.sandbox_host_check_enriched_q = sandbox_host_check_enriched_q
         self.agent_data_q = agent_data_q
         self.auth_data_q = auth_data_q
         self.extracted_hash_q = extracted_hash_q
@@ -89,6 +95,8 @@ class ElasticConnector(TaskInterface):
         await logger.ainfo("Starting the ElasticConnector")
 
         tasks = [
+            self.sandbox_host_check_q.Read(self.send_sandbox_data),  # type: ignore
+            self.sandbox_host_check_enriched_q.Read(self.send_sandbox_data_enriched),  # type: ignore
             self.agent_data_q.Read(self.send_agent_data),  # type: ignore
             self.auth_data_q.Read(self.send_authentication_data),  # type: ignore
             self.extracted_hash_q.Read(self.send_extracted_hash),  # type: ignore
@@ -111,6 +119,12 @@ class ElasticConnector(TaskInterface):
 
     async def send_agent_data(self, q_msg: pb.AgentDataIngestionMessage) -> None:
         await self.send_without_processing(q_msg, constants.ES_INDEX_AGENT_DATA)
+
+    async def send_sandbox_data(self, q_msg: pb.SandboxHostCheckIngestionMessage) -> None:
+        await self.send_without_processing(q_msg, constants.ES_INDEX_SANDBOX_HOST_CHECK)
+
+    async def send_sandbox_data_enriched(self, q_msg: pb.SandboxHostCheckIngestionMessageEnriched) -> None:
+        await self.send_without_processing(q_msg, constants.ES_INDEX_SANDBOX_HOST_CHECK_ENRICHED)
 
     async def send_authentication_data(self, q_msg: pb.AuthenticationDataIngestionMessage) -> None:
         await self.send_without_processing(q_msg, constants.ES_INDEX_AUTHENTICATION_DATA)
@@ -251,7 +265,7 @@ class ElasticConnector(TaskInterface):
     @aio.time(Summary("elastic_send_without_processing", "Time spent submitting process_enriched messages to Elastic/Postgres"))  # type: ignore
     async def send_without_processing(
         self,
-        q_msg: pb.AgentDataIngestionMessage | pb.AuthenticationDataIngestionMessage | pb.FileInformationIngestionMessage | pb.ProcessEnrichedMessage | pb.RegistryValueIngestionMessage | pb.ServiceEnrichedMessage | pb.ExtractedHashMessage,
+        q_msg: pb.SandboxHostCheckIngestionMessageEnriched | pb.SandboxHostCheckIngestionMessage | pb.AgentDataIngestionMessage | pb.AuthenticationDataIngestionMessage | pb.FileInformationIngestionMessage | pb.ProcessEnrichedMessage | pb.RegistryValueIngestionMessage | pb.ServiceEnrichedMessage | pb.ExtractedHashMessage,
         index: ElasticIndex,
     ):
         metadata = MessageToDict(q_msg.metadata)
