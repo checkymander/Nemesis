@@ -121,13 +121,14 @@ class Container(containers.DeclarativeContainer):
     inputq_filedata_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA, pb.FileDataIngestionMessage, "fileprocessor")
     inputq_filedataenriched_fileprocessor = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_FILE_DATA_ENRICHED, pb.FileDataEnrichedMessage, "fileprocessor")
     # Checkymander Added
-    inputq_sandboxchecker_sandboxhostchecker = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.SandboxHostCheckIngestionMessage, "sandboxhostchecker")
+    inputq_sandbox_host_check_elasticconnector = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.SandboxHostCheckIngestionMessage, "sandboxhostchecker")
     inputq_agentdata_agentcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_AGENT_DATA, pb.AgentDataIngestionMessage, "agentcategorizer")
     # Checkymander Added
     inputq_process_processcategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_PROCESS, pb.ProcessIngestionMessage, "processcategorizer")
     inputq_service_servicecategorizer = providers.Resource(create_consumer, config.rabbitmq_connection_uri, constants.Q_SERVICE, pb.ServiceIngestionMessage, "servicecategorizer")
 
     # Checkymander Added
+    # I might need to add an elsaticconnector for the sandboxhostcheckerenriched, not sure yet
     inputq_agentdata_elasticconnector = providers.Resource(
         create_consumer,
         config.rabbitmq_connection_uri,
@@ -137,7 +138,7 @@ class Container(containers.DeclarativeContainer):
         num_events=500,
     )
 
-    inputq_sandboxchecker_sandboxhostchecker = providers.Resource(
+    inputq_sandbox_host_check_elasticconnector = providers.Resource(
         create_consumer,
         config.rabbitmq_connection_uri,
         constants.Q_SANDBOX_HOST_CHECK,
@@ -525,7 +526,7 @@ class Container(containers.DeclarativeContainer):
         config.web_api_url,
         config.public_kibana_url,
         inputq_agentdata_elasticconnector,
-        inputq_sandboxchecker_sandboxhostchecker,
+        inputq_sandbox_host_check_elasticconnector,
         inputq_authdata_elasticconnector,
         inputq_extractedhash_elasticconnector,
         inputq_filedataenriched_elasticconnector,
@@ -621,7 +622,7 @@ class Container(containers.DeclarativeContainer):
     task_servicecategorizer = providers.Factory(ServiceCategorizer, inputq_service_servicecategorizer, outputq_serviceenriched, service_categorizer)
     # Checkymander Added
     task_agentcategorizer = providers.Factory(AgentCategorizer, inputq_agentdata_agentcategorizer, agent_categorizer)
-    task_sandboxdetector = providers.Factory(SandboxDetector, inputq_sandboxchecker_sandboxhostchecker, outputq_sandboxcheck_processed, sandbox_detector)
+    task_sandboxdetector = providers.Factory(SandboxDetector, inputq_sandbox_host_check_elasticconnector, outputq_sandboxcheck_processed, sandbox_detector)
     # Checkymander Added
     task_dataexpunge = providers.Factory(DataExpunge, elasticsearch_client, database)
 
